@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  jvm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeLaGuardo/setup-clojure@13.4
+        with:
+          cli: latest
+      - run: clojure -M:lint
+      - run: clojure -M:test
+
+  cljs:
+    # Not redundant with the JVM job. Every amount on this chain is past
+    # 2^53, so it moves through `BigInt` here and `BigInteger` there; a byte
+    # is unsigned here and signed there; BLAKE2b runs on different arithmetic
+    # on each side. The mainnet CIDs asserted in `message_test` come out the
+    # same on both runtimes or the encoder is wrong on one of them.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: DeLaGuardo/setup-clojure@13.4
+        with:
+          cli: latest
+      - run: npm install -g nbb
+      # @noble/hashes is not used here; io-multiformats' :cljs branch loads it
+      # at require time, so the path will not start without it.
+      - run: npm ci
+      - run: nbb --classpath "$(clojure -A:cljs -Spath)" scripts/verify-cljs.cljs
+
+  address-vectors:
+    # The address table is `filecoin-project/go-address`'s own test file, not
+    # this library's output. This job re-derives it from upstream and fails
+    # if it has drifted — either because a vector was edited by hand here, or
+    # because upstream changed one.
+    #
+    # The *chain* vectors (test/filecoin/chain_vectors.cljc) are deliberately
+    # not regenerated: they are a snapshot of real mainnet messages at a
+    # fixed height, and re-fetching would pull whatever is at the head today
+    # and diff against history that has not changed.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install -g nbb
+      - name: Regenerate and compare
+        run: |
+          set -euo pipefail
+          nbb testdata/gen_vectors.cljs > /tmp/vectors.cljc
+          diff -u test/filecoin/vectors.cljc /tmp/vectors.cljc

@@ -1,0 +1,13 @@
+{
+  "name": "io-filecoin",
+  "private": true,
+  "description": "Filecoin protocol client in portable .cljc — addresses, messages, signatures, Lotus JSON-RPC",
+  "scripts": {
+    "test:cljs": "nbb --classpath \"$(clojure -A:cljs -Spath)\" scripts/verify-cljs.cljs",
+    "vectors": "nbb testdata/gen_vectors.cljs > test/filecoin/vectors.cljc"
+  },
+  "comment": "@noble/hashes is not used by this library — nothing here computes SHA-256. It is required at namespace load by io-multiformats' :cljs branch, so the ClojureScript path cannot start without it.",
+  "dependencies": {
+    "@noble/hashes": "^2.0.1"
+  }
+}

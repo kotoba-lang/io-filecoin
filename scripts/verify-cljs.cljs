@@ -1,0 +1,27 @@
+#!/usr/bin/env nbb
+;; Run the suite on the ClojureScript side.
+;;
+;; Not a formality. Everything this library touches is a place the two
+;; runtimes disagree: attoFIL amounts exceed 2^53 so they move through
+;; `BigInt` here and `BigInteger` there; a byte is unsigned here and signed
+;; there; BLAKE2b runs on a different arithmetic entirely (see
+;; `blake2.word`). The mainnet CIDs asserted in `message_test` are the same
+;; on both or the encoder is wrong on one.
+;;
+;;   nbb --classpath "$(clojure -A:cljs -Spath)" scripts/verify-cljs.cljs
+(ns verify-cljs
+  (:require [clojure.test :as t]
+            [filecoin.address-test]
+            [filecoin.message-test]
+            [filecoin.rpc-test]))
+
+(defmethod t/report [:cljs.test/default :end-run-tests] [m]
+  (println)
+  (if (t/successful? m)
+    (println "all checks passed on the ClojureScript path")
+    (do (println "FAILED on the ClojureScript path")
+        (js/process.exit 1))))
+
+(t/run-tests 'filecoin.address-test
+             'filecoin.message-test
+             'filecoin.rpc-test)

@@ -100,4 +100,11 @@
   (let [a "f1xpbyy4tkdx5si2bgo37dubc2xwv6fum5tk57mia"
         m1 (msg/message {:to a :from a :value "1"})
         m2 (msg/message {:to (addr/from-string a) :from (addr/from-string a) :value "1"})]
-    (is (= (msg/cid m1) (msg/cid m2)))))
+    (is (= (msg/cid m1) (msg/cid m2)))
+    (testing "and encoding a raw map is the same as normalising it first"
+      ;; `encode` used to skip normalisation when `:to` was already present,
+      ;; which is true of exactly the raw map a caller writes by hand — and
+      ;; then handed a string to the address encoder.
+      (is (= (msg/cid m1) (msg/cid {:to a :from a :value "1"}))))
+    (testing "and normalising twice changes nothing"
+      (is (= m1 (msg/message m1))))))

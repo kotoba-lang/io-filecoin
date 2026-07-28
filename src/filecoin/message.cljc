@@ -61,6 +61,12 @@
   "Normalise a message map. Addresses may be given as strings or as
   `filecoin.address` maps; amounts as decimal strings.
 
+  Idempotent: every step (`addr-of` on a map, `str` on a string, `->ints` on
+  a vector) is the identity the second time, so `encode` calls this
+  unconditionally rather than inferring from a key that a map has already
+  been through it — an inference that gets it wrong for exactly the raw map
+  a caller is most likely to hand it.
+
       (message {:to \"f1…\" :from \"f1…\" :nonce 0 :value \"1000\"
                 :gas-limit 1000000 :gas-fee-cap \"100\" :gas-premium \"99\"
                 :method 0 :params nil})"
@@ -83,7 +89,7 @@
 (defn encode
   "The message's CBOR bytes."
   [msg]
-  (let [m (if (:to msg) msg (message msg))]
+  (let [m (message msg)]
     (cbor/encode
      [(:version m)
       (->bytes (->ints (addr/to-bytes (:to m))))

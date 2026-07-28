@@ -16,7 +16,7 @@ Onchain Cloud: PDP, Filecoin Pay, Warm Storage). Sibling of
 | `filecoin.address` | `f0`–`f4`, both encodings, and every reason one is invalid. |
 | `filecoin.message` | The 10-element array, its CID, and **the bytes signatures cover**. |
 | `filecoin.signature` | Signature types, signed messages, and which CID names one. |
-| `filecoin.bigint` | attoFIL, on runtimes that cannot hold it. |
+| `filecoin.bigint` | attoFIL and its arithmetic, on runtimes that cannot hold it. |
 | `filecoin.cid` | CIDv1 + dag-cbor + BLAKE2b-256 — the chain's one CID shape. |
 | `filecoin.rpc` | Lotus JSON-RPC bodies, and message ⇄ JSON. |
 | `filecoin.varint` | Unsigned LEB128, in arithmetic rather than 32-bit shifts. |
@@ -65,7 +65,10 @@ Same contract as `kotoba.lang.ipfs` and `storj.core` (ADR-2606302300 §Step-1).
 total supply is 2×10²⁷, which is nine orders of magnitude past what a
 JavaScript `Number` represents exactly. `filecoin.bigint` is the only place a
 platform big-integer appears, and `fil->atto` does its decimal shift by string
-surgery rather than by multiplying a float by 10¹⁸.
+surgery rather than by multiplying a float by 10¹⁸. Its `div` is **Euclidean**,
+matching `math/big.Int.Div`: both runtimes divide by truncating toward zero and
+Go does not, so a direct translation is off by one for every negative
+numerator — which is the sign the gas formulas divide with most of the time.
 
 **Two encodings of a message, and they are not renames of each other.** The
 chain form is a definite-length 10-element CBOR array with sign-magnitude byte
@@ -117,8 +120,13 @@ and there is no way to pass it by agreeing with oneself. Ten messages, BLS and
 secp256k1 and delegated (FEVM), including a 29,409,837,650,000,000,000 attoFIL
 transfer that a `Number` cannot hold.
 
+The division vectors are `math/big`'s **contract** rather than a table of
+quotients: for every sign combination, `x = y·q + m` with `0 ≤ m < |y|` is
+asserted directly, because a table only catches the cases someone thought to
+write one for.
+
 Both runtimes run the whole suite, because nearly every line above names a
-place where they differ. **196 assertions, green on both.**
+place where they differ. **324 assertions, green on both.**
 
 ```sh
 clojure -M:test                 # JVM

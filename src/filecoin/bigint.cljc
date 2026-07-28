@@ -13,7 +13,12 @@
   big-endian magnitude. Note that this is a sign-magnitude encoding — not
   two's complement — so it is not the JVM's `BigInteger.toByteArray` and not
   JavaScript's `BigInt.asUintN`; both need adjusting, which is most of what
-  this file does.")
+  this file does.
+
+  Arithmetic lives here too, for the same reason the conversions do: this is
+  the only namespace allowed to touch a platform big-integer, so anything
+  that has to multiply a base fee by a gas delta comes through it rather than
+  growing a second copy.")
 
 (def ^:const max-serialized-len
   "go-state-types' BigIntMaxSerializedLen. A value needing more bytes than
@@ -78,6 +83,64 @@
               n #?(:clj (java.math.BigInteger. hex 16)
                    :cljs (js/BigInt (str "0x" hex)))]
           (str (when (= 1 sign) "-") n))))))
+
+;; ── arithmetic ───────────────────────────────────────────────────────────────
+
+(defn- ->big [v]
+  #?(:clj (java.math.BigInteger. ^String (str v))
+     :cljs (js/BigInt (str v))))
+
+(defn add [a b] (str #?(:clj (.add (->big a) (->big b))
+                        :cljs (+ (->big a) (->big b)))))
+
+(defn sub [a b] (str #?(:clj (.subtract (->big a) (->big b))
+                        :cljs (- (->big a) (->big b)))))
+
+(defn mul [a b] (str #?(:clj (.multiply (->big a) (->big b))
+                        :cljs (* (->big a) (->big b)))))
+
+(defn cmp
+  "-1, 0 or 1. Comparison goes through the platform big-integer rather than
+  comparing decimal strings, which would order \"9\" above \"10\"."
+  [a b]
+  #?(:clj (let [c (.compareTo (->big a) (->big b))]
+            (cond (neg? c) -1 (pos? c) 1 :else 0))
+     :cljs (let [x (->big a) y (->big b)]
+             (cond (< x y) -1 (> x y) 1 :else 0))))
+
+(defn lt [a b] (neg? (cmp a b)))
+(defn gt [a b] (pos? (cmp a b)))
+(defn max-of [a b] (if (pos? (cmp a b)) (str a) (str b)))
+(defn min-of [a b] (if (neg? (cmp a b)) (str a) (str b)))
+
+(defn div
+  "**Euclidean** division, matching go-state-types' `big.Div` — which is
+  `math/big.Int.Div`, whose remainder is always non-negative. `-1 / 8` is
+  `-1`, not `0`.
+
+  This is not a detail. Both platforms divide by truncating toward zero
+  (`BigInteger.divide`; JavaScript's `/` on a BigInt) and Go's `Div` does not,
+  so a direct translation is off by one for every negative numerator. The gas
+  formula in `filecoin.node.basefee` divides a negative product by a positive
+  constant on every block where the network is under target — which is most of
+  them — and truncating there makes the fee drift upward one attoFIL at a time.
+
+  For a positive divisor this is the same as flooring; the two part company
+  when the divisor is negative, and Euclidean is what Go does."
+  [a b]
+  (let [x (->big a) y (->big b)
+        q #?(:clj (.divide x y) :cljs (/ x y))
+        r #?(:clj (.subtract x (.multiply q y)) :cljs (- x (* q y)))
+        one (->big "1")
+        sgn (fn [v] #?(:clj (.signum ^java.math.BigInteger v)
+                       :cljs (cond (< v (->big "0")) -1 (> v (->big "0")) 1 :else 0)))]
+    (str (if (neg? (sgn r))
+           ;; the remainder has to land in [0, |y|), so step the quotient
+           ;; toward whichever side adds |y| to it
+           (if (pos? (sgn y))
+             #?(:clj (.subtract q one) :cljs (- q one))
+             #?(:clj (.add q one) :cljs (+ q one)))
+           q))))
 
 (def ^:const atto-per-fil "1000000000000000000")
 

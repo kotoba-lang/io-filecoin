@@ -12,6 +12,7 @@
 (ns verify-cljs
   (:require [clojure.test :as t]
             [filecoin.address-test]
+            [filecoin.bigint-test]
             [filecoin.message-test]
             [filecoin.rpc-test]))
 
@@ -23,5 +24,6 @@
         (js/process.exit 1))))
 
 (t/run-tests 'filecoin.address-test
+             'filecoin.bigint-test
              'filecoin.message-test
              'filecoin.rpc-test)

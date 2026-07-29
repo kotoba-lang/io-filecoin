@@ -26,6 +26,15 @@
 (def want-bls 6)
 (def want-secp 4)
 
+(defn- parse-first-document
+  "Glif's public endpoint answers with the response repeated, newline
+  separated — two identical JSON documents in one body. `Response.json()` and
+  `JSON.parse` both reject that (\"Unexpected non-whitespace character after
+  JSON\"), so take the first line rather than the whole body. Observed
+  2026-07-29; it is a property of that proxy, not of JSON-RPC."
+  [text]
+  (js/JSON.parse (first (remove str/blank? (str/split-lines text)))))
+
 (defn- rpc [method params]
   (-> (js/fetch endpoint
                 #js {:method "POST"
@@ -33,11 +42,12 @@
                      :body (js/JSON.stringify
                             (clj->js {:jsonrpc "2.0" :method method
                                       :params params :id 1}))})
-      (.then #(.json %))
-      (.then (fn [r]
-               (if-let [e (aget r "error")]
-                 (throw (ex-info (str "rpc: " (js/JSON.stringify e)) {}))
-                 (aget r "result"))))))
+      (.then #(.text %))
+      (.then (fn [t]
+               (let [r (parse-first-document t)]
+                 (if-let [e (aget r "error")]
+                   (throw (ex-info (str "rpc: " (js/JSON.stringify e)) {}))
+                   (aget r "result")))))))
 
 (defn- emit-message
   "A Lotus message object as an EDN map with string keys — the shape

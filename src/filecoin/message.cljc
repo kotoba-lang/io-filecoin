@@ -28,7 +28,11 @@
 
   `signing-bytes` returns `cid-bytes`. The extra BLAKE2b-256 in the
   secp256k1 case belongs to the signer, and `digest-for-secp256k1` is here
-  for signers that want it applied for them."
+  for signers that want it applied for them.
+
+  **This does not extend to the delegated (FEVM) signature type.** A type-3
+  signature covers the RLP-encoded Ethereum transaction, not this CID —
+  see `filecoin.signature`. `signing-bytes` is for types 1 and 2 only."
   (:require [blake2.core :as blake2]
             [cbor.core :as cbor]
             [filecoin.address :as addr]

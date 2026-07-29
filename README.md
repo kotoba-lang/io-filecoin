@@ -19,6 +19,7 @@ Onchain Cloud: PDP, Filecoin Pay, Warm Storage). Sibling of
 | `filecoin.bigint` | attoFIL and its arithmetic, on runtimes that cannot hold it. |
 | `filecoin.cid` | CIDv1 + dag-cbor + BLAKE2b-256 — the chain's one CID shape. |
 | `filecoin.rpc` | Lotus JSON-RPC bodies, and message ⇄ JSON. |
+| `filecoin.method` | FRC-0042 — method **numbers**, derived from names. |
 | `filecoin.varint` | Unsigned LEB128, in arithmetic rather than 32-bit shifts. |
 | `filecoin.protocols` | The seams: `IHttp`, `ISigner`, `IVerifier`. |
 
@@ -78,11 +79,20 @@ from the other by renaming is how a field ends up in the wrong slot — and a
 message with `value` and `gas-limit` transposed is not invalid, it is a valid
 message that sends a different amount.
 
-**What gets signed, exactly.** `encode` → CBOR; the binary CIDv1 of that
-(dag-cbor + BLAKE2b-256) is `signing-bytes`. A BLS signature covers those
-bytes; secp256k1 signs `BLAKE2b-256` **of** those bytes — hashed twice in
-total. `digest-for-secp256k1` applies the second hash so a signer does not
-have to know that.
+**What gets signed, exactly — and the three answers are different.** `encode`
+→ CBOR; the binary CIDv1 of that (dag-cbor + BLAKE2b-256) is `signing-bytes`.
+A **BLS** signature covers those bytes; **secp256k1** signs `BLAKE2b-256`
+**of** those bytes — hashed twice in total, and `digest-for-secp256k1` applies
+the second hash so a signer does not have to know that.
+
+**Delegated (type 3) is not a third variation of this.** It covers the
+**RLP-encoded unsigned Ethereum transaction**, keccak-256 hashed — not the CID
+in any form. Lotus reconstructs the Ethereum transaction from the message,
+requires the round-trip to be byte-identical, and verifies against that. So
+this library can decode, name and verify-by-CID a delegated message, but
+**cannot produce the payload to sign a new one**: RLP and keccak-256 are both
+absent, and keccak has no portable implementation in this workspace. Sending
+to an FEVM contract without that is still possible — see `filecoin.method`.
 
 ## What is not here
 
@@ -126,7 +136,7 @@ asserted directly, because a table only catches the cases someone thought to
 write one for.
 
 Both runtimes run the whole suite, because nearly every line above names a
-place where they differ. **326 assertions, green on both.**
+place where they differ. **428 assertions, green on both.**
 
 ```sh
 clojure -M:test                 # JVM

@@ -14,6 +14,7 @@
             [filecoin.address-test]
             [filecoin.bigint-test]
             [filecoin.message-test]
+            [filecoin.method-test]
             [filecoin.rpc-test]))
 
 (defmethod t/report [:cljs.test/default :end-run-tests] [m]
@@ -25,5 +26,6 @@
 
 (t/run-tests 'filecoin.address-test
              'filecoin.bigint-test
+             'filecoin.method-test
              'filecoin.message-test
              'filecoin.rpc-test)

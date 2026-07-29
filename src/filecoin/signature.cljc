@@ -13,11 +13,37 @@
 
   - **BLS** — the CID *is* the message CID. BLS signatures are aggregated
     into the block header, so the signed wrapper is not what gets stored.
-  - **secp256k1** — the CID is that of the signed message itself.
+  - **secp256k1** and **delegated** — the CID is that of the signed message
+    itself.
 
   Getting this backwards means looking up a message by a CID the chain does
   not have, which presents as \"the message vanished\" rather than as an
-  encoding bug."
+  encoding bug.
+
+  ## What each type actually signs — and delegated is the odd one
+
+  The CID rule above is about *naming*. What the signature covers is a
+  separate question, and the three answers are not variations of one rule:
+
+  | type | the signature covers |
+  |---|---|
+  | BLS (2) | the binary message CID, directly |
+  | secp256k1 (1) | BLAKE2b-256 **of** the binary message CID |
+  | delegated (3) | **the RLP-encoded unsigned Ethereum transaction**, hashed with keccak-256 |
+
+  A delegated signature does **not** cover the message CID in any form.
+  Lotus's `AuthenticateMessage` reconstructs an `EthTransaction` from the
+  Filecoin message, requires the round-trip back to be byte-identical, and
+  then verifies the signature against the RLP encoding of that transaction —
+  recovering the public key and checking that `f410f` ‖ keccak256(pubkey)[12:]
+  is the sender. So the digest is the Ethereum one; the Filecoin message is
+  only a re-encoding of it.
+
+  `filecoin.message/signing-bytes` is therefore correct for types 1 and 2 and
+  **wrong for type 3**, and there is no function here that produces the
+  delegated payload — RLP and keccak-256 are both absent (see the README).
+  Verifying, decoding and naming a delegated message all work; signing a new
+  one does not."
   (:require [cbor.core :as cbor]
             [filecoin.cid :as fcid]
             [filecoin.message :as msg]))

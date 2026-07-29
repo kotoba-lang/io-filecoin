@@ -136,7 +136,7 @@ asserted directly, because a table only catches the cases someone thought to
 write one for.
 
 Both runtimes run the whole suite, because nearly every line above names a
-place where they differ. **428 assertions, green on both.**
+place where they differ. **430 assertions, green on both.**
 
 ```sh
 clojure -M:test                 # JVM

@@ -88,9 +88,16 @@
 ;; ── message ⇄ JSON ───────────────────────────────────────────────────────────
 
 (defn message->json
-  "A message map → the object Lotus expects."
+  "A message map → the object Lotus expects.
+
+  Normalises unconditionally, for the same reason `filecoin.message/encode`
+  does: deciding by the presence of `:to` gets it wrong for exactly the raw
+  map a caller writes by hand, and then hands a *string* to `addr/to-string`.
+  Lotus answers that with `unknown address protocol` from inside its
+  unmarshaller, which reads as a malformed request rather than as an
+  un-normalised one. Found by making a real call."
   [m]
-  (let [m (if (:to m) m (msg/message m))]
+  (let [m (msg/message m)]
     {"Version" (:version m)
      "To" (addr/to-string (:to m))
      "From" (addr/to-string (:from m))

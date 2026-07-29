@@ -26,6 +26,16 @@
       (when-let [p (get message "Params")]
         (is (= p (rpc/base64 (rpc/base64-decode p))))))))
 
+(deftest a-raw-map-is-normalised-before-it-becomes-json
+  ;; `message->json` used to skip normalisation when `:to` was present —
+  ;; true of exactly the map a caller writes by hand — and then passed the
+  ;; string straight to the address encoder. A node answers that with
+  ;; "unknown address protocol", which looks like a malformed request.
+  (let [a "f1xpbyy4tkdx5si2bgo37dubc2xwv6fum5tk57mia"
+        raw {:to a :from a :value "1" :nonce 3 :method 0}]
+    (is (= a (get (rpc/message->json raw) "To")))
+    (is (= (rpc/message->json (msg/message raw)) (rpc/message->json raw)))))
+
 (deftest message-json-round-trips
   (doseq [{:keys [message]} cv/bls-messages]
     (testing (get message "To")

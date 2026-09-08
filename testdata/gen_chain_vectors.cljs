@@ -20,7 +20,7 @@
 ;;
 ;;   nbb testdata/gen_chain_vectors.cljs > test/filecoin/chain_vectors.cljc
 (ns gen-chain-vectors
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 (def endpoint "https://api.node.glif.io/rpc/v1")
 (def want-bls 6)

@@ -10,7 +10,7 @@
 ;;
 ;;   nbb testdata/gen_vectors.cljs > test/filecoin/vectors.cljc
 (ns gen-vectors
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 (def source
   "https://raw.githubusercontent.com/filecoin-project/go-address/master/address_test.go")

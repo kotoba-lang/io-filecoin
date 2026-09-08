@@ -34,7 +34,7 @@
   form is a decimal number, which is why a typo in an `f0` address is
   undetectable and a typo in every other kind is not."
   (:require [blake2.core :as blake2]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             [filecoin.varint :as varint]
             [multiformats.core :as mf]))
 

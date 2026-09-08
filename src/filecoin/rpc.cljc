@@ -19,7 +19,7 @@
   Read-only calls need no key. `mpool-push` does — but the signing happens
   outside this namespace (`filecoin.protocols/ISigner`), so nothing here
   ever holds one."
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [filecoin.address :as addr]
             [filecoin.message :as msg]
             [json.core :as json]))

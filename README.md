@@ -118,10 +118,10 @@ to an FEVM contract without that is still possible — see `filecoin.method`.
 
 The address vectors are **upstream's**, regenerated from
 `filecoin-project/go-address`'s own `address_test.go` by
-`testdata/gen_vectors.cljs`. An address implementation that only agrees with
+`testdata/gen_vectors.cljk`. An address implementation that only agrees with
 itself is worth nothing.
 
-The message vectors are **mainnet's**. `testdata/gen_chain_vectors.cljs`
+The message vectors are **mainnet's**. `testdata/gen_chain_vectors.cljk`
 snapshots real messages off the public Glif endpoint together with the CIDs the
 network gave them; the suite recomputes each CID from scratch. That single
 assertion covers address bytes, sign-magnitude amounts, field order,
@@ -141,7 +141,7 @@ place where they differ. **430 assertions, green on both.**
 ```sh
 clojure -M:test                 # JVM
 npm run test:cljs               # nbb
-nbb testdata/gen_vectors.cljs > test/filecoin/vectors.cljc   # regenerate
+nbb testdata/gen_vectors.cljk > test/filecoin/vectors.cljk   # regenerate
 ```
 
 The chain vectors are deliberately **not** regenerated in CI: the chain moves,

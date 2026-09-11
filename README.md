@@ -139,9 +139,9 @@ Both runtimes run the whole suite, because nearly every line above names a
 place where they differ. **430 assertions, green on both.**
 
 ```sh
-clojure -M:test                 # JVM
+kbb -M:test                 # JVM
 npm run test:cljs               # nbb
-nbb testdata/gen_vectors.cljk > test/filecoin/vectors.cljk   # regenerate
+kbb --backend sci testdata/gen_vectors.cljk > test/filecoin/vectors.cljk   # regenerate
 ```
 
 The chain vectors are deliberately **not** regenerated in CI: the chain moves,

@@ -1,4 +1,4 @@
-#!/usr/bin/env nbb
+#!/usr/bin/env kbb
 ;; Regenerate test/filecoin/vectors.cljk from go-address's own test file.
 ;;
 ;; The address vectors are not this workspace's to invent: an implementation
@@ -8,7 +8,7 @@
 ;; by regenerating its vectors from Storj's own code, and the reason this
 ;; parses Go source rather than computing anything.
 ;;
-;;   nbb testdata/gen_vectors.cljk > test/filecoin/vectors.cljk
+;;   kbb --backend sci testdata/gen_vectors.cljk > test/filecoin/vectors.cljk
 (ns gen-vectors
   (:require [kotoba.lang.text :as str]))
 

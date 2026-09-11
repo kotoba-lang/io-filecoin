@@ -1,4 +1,4 @@
-#!/usr/bin/env nbb
+#!/usr/bin/env kbb
 ;; Snapshot real messages off Filecoin mainnet, with the CIDs the chain gave
 ;; them, into test/filecoin/chain_vectors.cljk.
 ;;
@@ -18,7 +18,7 @@
 ;; fail. What it produces is a permanent snapshot: mainnet history does not
 ;; change, so these CIDs are correct forever.
 ;;
-;;   nbb testdata/gen_chain_vectors.cljk > test/filecoin/chain_vectors.cljk
+;;   kbb --backend sci testdata/gen_chain_vectors.cljk > test/filecoin/chain_vectors.cljk
 (ns gen-chain-vectors
   (:require [kotoba.lang.text :as str]))
 

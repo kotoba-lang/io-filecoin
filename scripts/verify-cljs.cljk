@@ -1,4 +1,4 @@
-#!/usr/bin/env nbb
+#!/usr/bin/env kbb
 ;; Run the suite on the ClojureScript side.
 ;;
 ;; Not a formality. Everything this library touches is a place the two
@@ -8,7 +8,7 @@
 ;; `blake2.word`). The mainnet CIDs asserted in `message_test` are the same
 ;; on both or the encoder is wrong on one.
 ;;
-;;   nbb --classpath "$(clojure -A:cljs -Spath)" scripts/verify-cljs.cljk
+;;   kbb --backend sci --classpath "$(kbb -A:cljs -Spath)" scripts/verify-cljs.cljk
 (ns verify-cljs
   (:require [clojure.test :as t]
             [filecoin.address-test]

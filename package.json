@@ -3,8 +3,8 @@
   "private": true,
   "description": "Filecoin protocol client in portable .cljc — addresses, messages, signatures, Lotus JSON-RPC",
   "scripts": {
-    "test:cljs": "nbb --classpath \"$(clojure -A:cljs -Spath)\" scripts/verify-cljs.cljs",
-    "vectors": "nbb testdata/gen_vectors.cljs > test/filecoin/vectors.cljc"
+    "test:cljs": "nbb --classpath \"$(clojure -A:cljs -Spath)\" scripts/verify-cljs.cljk",
+    "vectors": "nbb testdata/gen_vectors.cljk > test/filecoin/vectors.cljk"
   },
   "dependencies": {}
 }

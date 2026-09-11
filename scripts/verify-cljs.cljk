@@ -8,7 +8,7 @@
 ;; `blake2.word`). The mainnet CIDs asserted in `message_test` are the same
 ;; on both or the encoder is wrong on one.
 ;;
-;;   nbb --classpath "$(clojure -A:cljs -Spath)" scripts/verify-cljs.cljs
+;;   nbb --classpath "$(clojure -A:cljs -Spath)" scripts/verify-cljs.cljk
 (ns verify-cljs
   (:require [clojure.test :as t]
             [filecoin.address-test]

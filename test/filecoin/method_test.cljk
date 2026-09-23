@@ -1,5 +1,5 @@
 (ns filecoin.method-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [filecoin.chain-vectors :as cv]
             [filecoin.method :as method]
             [filecoin.rpc :as rpc]))

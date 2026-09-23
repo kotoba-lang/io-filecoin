@@ -1,5 +1,5 @@
 (ns filecoin.address-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [filecoin.address :as addr]
             [filecoin.vectors :as v]
             [multiformats.core :as mf]))

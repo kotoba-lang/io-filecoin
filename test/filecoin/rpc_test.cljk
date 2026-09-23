@@ -1,5 +1,5 @@
 (ns filecoin.rpc-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [filecoin.chain-vectors :as cv]
             [filecoin.message :as msg]
             [filecoin.rpc :as rpc]

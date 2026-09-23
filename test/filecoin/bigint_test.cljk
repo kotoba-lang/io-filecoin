@@ -1,5 +1,5 @@
 (ns filecoin.bigint-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [filecoin.bigint :as bigint]))
 
 (deftest arithmetic-is-exact-past-2-to-the-53

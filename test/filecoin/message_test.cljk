@@ -1,6 +1,6 @@
 (ns filecoin.message-test
   (:require [cbor.core :as cbor]
-            [clojure.test :refer [deftest is testing]]
+            [kotoba.test :refer [deftest is testing]]
             [filecoin.address :as addr]
             [filecoin.bigint :as bigint]
             [filecoin.chain-vectors :as cv]

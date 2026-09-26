@@ -12,7 +12,10 @@
 (defprotocol IHttp
   "A single request. `req` is
   `{:method :post :url \"…\" :headers {…} :body \"…\"}`; the return is
-  `{:status Int :body String}` on :clj and a Promise of the same on :cljs."
+  `{:status Int :headers {…} :body String}` on :clj and a Promise of the same
+  on :cljs. Hosts may also accept byte bodies for `:put` and return bytes when
+  `:response-type :bytes` is requested. JSON-RPC callers use the string default.
+  The exact byte type is host-specific (JVM byte array or JS Uint8Array)."
   (request [this req]))
 
 (defprotocol ISigner
